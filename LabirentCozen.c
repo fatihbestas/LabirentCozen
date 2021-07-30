@@ -2,136 +2,136 @@
 #include <stdbool.h>
 
 /*
-	Algoritma içerisinde bazı yorumlar çok anlaşılır olmayabilir.
-	Örneğin ileride köşe diye bir terimden bahsedilmekte.
-	Burada bahsedilen geometrik şekillerden bildiğimiz köşe ile aynı değil.
-	Buradaki köşenin tanımı bir karenin 2'den fazla yol bağlantısına sahip olmasıdır.
-	Köşe denilmesinin nedeni algoritma içerisindeki en kısa yolu hesaplama bölümü ile alakalı.
-	Bu gibi anlamı biraz kapalı olan kısımlar hakkında açıklama dosyası yazılması planlanmakta.
+	Algoritma iÃ§erisinde bazÄ± yorumlar Ã§ok anlaÅŸÄ±lÄ±r olmayabilir.
+	Ã–rneÄŸin ileride kÃ¶ÅŸe diye bir terimden bahsedilmekte.
+	Burada bahsedilen geometrik ÅŸekillerden bildiÄŸimiz kÃ¶ÅŸe ile aynÄ± deÄŸil.
+	Buradaki kÃ¶ÅŸenin tanÄ±mÄ± bir karenin 2'den fazla yol baÄŸlantÄ±sÄ±na sahip olmasÄ±dÄ±r.
+	KÃ¶ÅŸe denilmesinin nedeni algoritma iÃ§erisindeki en kÄ±sa yolu hesaplama bÃ¶lÃ¼mÃ¼ ile alakalÄ±.
+	Bu gibi anlamÄ± biraz kapalÄ± olan kÄ±sÄ±mlar hakkÄ±nda aÃ§Ä±klama dosyasÄ± yazÄ±lmasÄ± planlanmakta.
 */
 
-/* 12x12 olmak üzere 144 kareden oluşan bir labirent için yazıyorum kodu.
-   Algoritma işleyişi:
-   Robot her karede sağ,sol ve öndeki sensörlerden gelen veri ile yol açık mı yoksa duvar mı var bunu algılar.
-   Eğer sadece bir taraf açıksa o karede zaten tek yol vardır ve ordan gitmek zorunludur. Eğer birden fazla taraf açıksa
-   o kare için belli karar mekanizmaları kullanmak gerekiyor.
-   Karelerin bilgilerini tutacak değişkenleri içeren bir yapı tanımlayıp o tipte 2 boyutlu bir dizi tanımlanacak.
-   Bu dizi kare bilgilerini bellekte tutmak ve gerekli işlemleri yapmak için kullanılacak.
+/* 12x12 olmak Ã¼zere 144 kareden oluÅŸan bir labirent iÃ§in yazÄ±yorum kodu.
+   Algoritma iÅŸleyiÅŸi:
+   Robot her karede saÄŸ,sol ve Ã¶ndeki sensÃ¶rlerden gelen veri ile yol aÃ§Ä±k mÄ± yoksa duvar mÄ± var bunu algÄ±lar.
+   EÄŸer sadece bir taraf aÃ§Ä±ksa o karede zaten tek yol vardÄ±r ve ordan gitmek zorunludur. EÄŸer birden fazla taraf aÃ§Ä±ksa
+   o kare iÃ§in belli karar mekanizmalarÄ± kullanmak gerekiyor.
+   Karelerin bilgilerini tutacak deÄŸiÅŸkenleri iÃ§eren bir yapÄ± tanÄ±mlayÄ±p o tipte 2 boyutlu bir dizi tanÄ±mlanacak.
+   Bu dizi kare bilgilerini bellekte tutmak ve gerekli iÅŸlemleri yapmak iÃ§in kullanÄ±lacak.
    
-   Labirentin x-y düzleminde olduğunu varsayıyorum ve robotun başlangıç noktasını (0,0) kabul ediyorum. Robotun
-   başlangıçta baktığı yön, +y yönü kabul ediliyor. Bu yön ve konum bilgileri kullanılarak robotu hareket ettirme
-   ve konumunu belirleme işlemleri yapılacak.
+   Labirentin x-y dÃ¼zleminde olduÄŸunu varsayÄ±yorum ve robotun baÅŸlangÄ±Ã§ noktasÄ±nÄ± (0,0) kabul ediyorum. Robotun
+   baÅŸlangÄ±Ã§ta baktÄ±ÄŸÄ± yÃ¶n, +y yÃ¶nÃ¼ kabul ediliyor. Bu yÃ¶n ve konum bilgileri kullanÄ±larak robotu hareket ettirme
+   ve konumunu belirleme iÅŸlemleri yapÄ±lacak.
 */
 
 /*
- Bu maze yapısı labirent haritasını tutacak olan dizi için oluşturuldu. Burada bir nevi simülasyon programı yazıldığı için
- labirent haritasını programa elle girmek gerekiyor. Kodu robota uyarlarken bu yapı ve dizi kaldırılacak.
- Örneğin gerçekte ileri yol açık mı bilgisi öndeki sensörden gelen veri ile anlaşılacak. Burada ise tanımlanacak olan maze
- dizisinin ilgili nesnesi kontrol edilerek anlaşılacak. Yapı içinde 5 tane nesne olacak +y -y +x -x ve hedef. Bu nesneler ilgili karenin
- o yönlerinde duvar var mı yok mu bilgisini tutuyor olacak ve hedef o karenin ulaşılmak istenen kare olup olmadığı bilgisini tutacak.
- Açıkcası labirent bilgilerini girmek uzun ve zahmetli bir iş olduğu için program her başladığında kullanıcının bunu yapması
- hoş olmaz. O yüzden burada maze isimli bir labirent giricem. Labirent değiştirilmek istenirse kodun içinde burası değiştirilmeli. 
+ Bu maze yapÄ±sÄ± labirent haritasÄ±nÄ± tutacak olan dizi iÃ§in oluÅŸturuldu. Burada bir nevi simÃ¼lasyon programÄ± yazÄ±ldÄ±ÄŸÄ± iÃ§in
+ labirent haritasÄ±nÄ± programa elle girmek gerekiyor. Kodu robota uyarlarken bu yapÄ± ve dizi kaldÄ±rÄ±lacak.
+ Ã–rneÄŸin gerÃ§ekte ileri yol aÃ§Ä±k mÄ± bilgisi Ã¶ndeki sensÃ¶rden gelen veri ile anlaÅŸÄ±lacak. Burada ise tanÄ±mlanacak olan maze
+ dizisinin ilgili nesnesi kontrol edilerek anlaÅŸÄ±lacak. YapÄ± iÃ§inde 5 tane nesne olacak +y -y +x -x ve hedef. Bu nesneler ilgili karenin
+ o yÃ¶nlerinde duvar var mÄ± yok mu bilgisini tutuyor olacak ve hedef o karenin ulaÅŸÄ±lmak istenen kare olup olmadÄ±ÄŸÄ± bilgisini tutacak.
+ AÃ§Ä±kcasÄ± labirent bilgilerini girmek uzun ve zahmetli bir iÅŸ olduÄŸu iÃ§in program her baÅŸladÄ±ÄŸÄ±nda kullanÄ±cÄ±nÄ±n bunu yapmasÄ±
+ hoÅŸ olmaz. O yÃ¼zden burada maze isimli bir labirent giricem. Labirent deÄŸiÅŸtirilmek istenirse kodun iÃ§inde burasÄ± deÄŸiÅŸtirilmeli. 
 */
 
 char maze[25][25] = {"ooooooooooooooooooooooooo",
-					 "o                       o",
-					 "ooooo o ooooooooo ooooo o",
-					 "o o   o o     o   o   o o",
-					 "o o o o o ooo o ooo ooo o",
-					 "o   o o     o o     o   o",
-					 "o ooo ooo ooo o ooo ooo o",
-					 "o o o o     o o   o o   o",
-					 "ooo o o ooooooooo o ooo o",
-					 "o o   o           o o o o",
-					 "o ooo ooooooooooooo o o o",
-					 "o     o   ox x        o o",
-					 "o ooooo ooo   ooooooo o o",
-					 "o   o   o ox xo o o   o o",
-					 "o o ooo o ooooo o ooo o o",
-					 "o o o o           o o o o",
-					 "ooo o ooooo ooooooo ooo o",
-					 "o   o o       o         o",
-					 "o ooo o o ooo o o ooooooo",
-					 "o o     o   o o o o   o o",
-					 "o ooooo ooooooo ooo o o o",
-					 "o o o o   o         o o o",
-					 "o o o ooo o ooo ooooo o o",
-					 "o             o     o   o",
-					 "ooooooooooooooooooooooooo"};
-// robot gezerken ziyaret ettiği kareleri işaretleme,
-// çıkmaza giden yolları kapatma gibi işlemler yapıyor.
-// bunları python simülasyonunda görmek için bu ikinci maze 
-// dizisini kullanıyoruz.
+		     "o                       o",
+		     "ooooo o ooooooooo ooooo o",
+		     "o o   o o     o   o   o o",
+		     "o o o o o ooo o ooo ooo o",
+		     "o   o o     o o     o   o",
+		     "o ooo ooo ooo o ooo ooo o",
+		     "o o o o     o o   o o   o",
+		     "ooo o o ooooooooo o ooo o",
+		     "o o   o           o o o o",
+		     "o ooo ooooooooooooo o o o",
+		     "o     o   ox x        o o",
+		     "o ooooo ooo   ooooooo o o",
+		     "o   o   o ox xo o o   o o",
+		     "o o ooo o ooooo o ooo o o",
+		     "o o o o           o o o o",
+		     "ooo o ooooo ooooooo ooo o",
+		     "o   o o       o         o",
+		     "o ooo o o ooo o o ooooooo",
+		     "o o     o   o o o o   o o",
+		     "o ooooo ooooooo ooo o o o",
+		     "o o o o   o         o o o",
+		     "o o o ooo o ooo ooooo o o",
+		     "o             o     o   o",
+		     "ooooooooooooooooooooooooo"};
+// robot gezerken ziyaret ettiÄŸi kareleri iÅŸaretleme,
+// Ã§Ä±kmaza giden yollarÄ± kapatma gibi iÅŸlemler yapÄ±yor.
+// bunlarÄ± python simÃ¼lasyonunda gÃ¶rmek iÃ§in bu ikinci maze 
+// dizisini kullanÄ±yoruz.
 char maze2[25][25] = {"ooooooooooooooooooooooooo",
-					  "o                       o",
-					  "ooooo o ooooooooo ooooo o",
-					  "o o   o o     o   o   o o",
-					  "o o o o o ooo o ooo ooo o",
-					  "o   o o     o o     o   o",
-					  "o ooo ooo ooo o ooo ooo o",
-					  "o o o o     o o   o o   o",
-					  "ooo o o ooooooooo o ooo o",
-					  "o o   o           o o o o",
-					  "o ooo ooooooooooooo o o o",
-					  "o     o   ox x        o o",
-					  "o ooooo ooo   ooooooo o o",
-					  "o   o   o ox xo o o   o o",
-					  "o o ooo o ooooo o ooo o o",
-					  "o o o o           o o o o",
-					  "ooo o ooooo ooooooo ooo o",
-					  "o   o o       o         o",
-					  "o ooo o o ooo o o ooooooo",
-					  "o o     o   o o o o   o o",
-					  "o ooooo ooooooo ooo o o o",
-					  "o o o o   o         o o o",
-					  "o o o ooo o ooo ooooo o o",
-					  "o             o     o   o",
-					  "ooooooooooooooooooooooooo"};
+		      "o                       o",
+		      "ooooo o ooooooooo ooooo o",
+		      "o o   o o     o   o   o o",
+		      "o o o o o ooo o ooo ooo o",
+		      "o   o o     o o     o   o",
+		      "o ooo ooo ooo o ooo ooo o",
+		      "o o o o     o o   o o   o",
+		      "ooo o o ooooooooo o ooo o",
+		      "o o   o           o o o o",
+		      "o ooo ooooooooooooo o o o",
+		      "o     o   ox x        o o",
+		      "o ooooo ooo   ooooooo o o",
+		      "o   o   o ox xo o o   o o",
+		      "o o ooo o ooooo o ooo o o",
+		      "o o o o           o o o o",
+		      "ooo o ooooo ooooooo ooo o",
+		      "o   o o       o         o",
+		      "o ooo o o ooo o o ooooooo",
+		      "o o     o   o o o o   o o",
+		      "o ooooo ooooooo ooo o o o",
+		      "o o o o   o         o o o",
+		      "o o o ooo o ooo ooooo o o",
+		      "o             o     o   o",
+		      "ooooooooooooooooooooooooo"};
 
 
-// Karelerin bilgilerini tutan yapı.
+// Karelerin bilgilerini tutan yapÄ±.
 struct square_inf{
-	int visit; // Kareye daha önce kaç kere gelindiğini tutan değişken.
-	int y_direction; // Herhangi bir karenin 4 tarafındaki geçit için açık mı yoksa kapalı mı olduğunu tutan değişkenler.
-	int v_direction; // 1 açık, 0 kapalı, 2 görülmedi demek.
-	int x_direction; // Labirenti 2 boyutlu x-y eksenine oturtuyoruz ve yönleri şu şekilde kodluyoruz.
-	int c_direction; // +y yönü için y, -y için v, +x için x, -x için c kullanıyoruz.
-	bool finish; // O karenin ulaşılmak istenen kare olup olmadığını tutan değişken. 1 evet 0 hayır.
+	int visit; // Kareye daha Ã¶nce kaÃ§ kere gelindiÄŸini tutan deÄŸiÅŸken.
+	int y_direction; // Herhangi bir karenin 4 tarafÄ±ndaki geÃ§it iÃ§in aÃ§Ä±k mÄ± yoksa kapalÄ± mÄ± olduÄŸunu tutan deÄŸiÅŸkenler.
+	int v_direction; // 1 aÃ§Ä±k, 0 kapalÄ±, 2 gÃ¶rÃ¼lmedi demek.
+	int x_direction; // Labirenti 2 boyutlu x-y eksenine oturtuyoruz ve yÃ¶nleri ÅŸu ÅŸekilde kodluyoruz.
+	int c_direction; // +y yÃ¶nÃ¼ iÃ§in y, -y iÃ§in v, +x iÃ§in x, -x iÃ§in c kullanÄ±yoruz.
+	bool finish; // O karenin ulaÅŸÄ±lmak istenen kare olup olmadÄ±ÄŸÄ±nÄ± tutan deÄŸiÅŸken. 1 evet 0 hayÄ±r.
 	
 	
 };
 struct square_inf square[12][12];
 
-// Robot bilgilerini tutan yapı
+// Robot bilgilerini tutan yapÄ±
 struct robot_inf{
-	// yön ve konum değişkenleri.
-	// yön için +y = y, -y = v, +x = x, -x = c olarak kullanılacak.
-	// konum square dizisine göre bulunduğumuz karenin sütun ve satır numaraları.
+	// yÃ¶n ve konum deÄŸiÅŸkenleri.
+	// yÃ¶n iÃ§in +y = y, -y = v, +x = x, -x = c olarak kullanÄ±lacak.
+	// konum square dizisine gÃ¶re bulunduÄŸumuz karenin sÃ¼tun ve satÄ±r numaralarÄ±.
 	char direction;
-	int column; // robotun labirentteki konumu. Sutun ve satır olarak.
+	int column; // robotun labirentteki konumu. Sutun ve satÄ±r olarak.
 	int line;
-	int front; // robotun ön sağ ve solundaki geçitlerin açık mı kapalı mı olduğunu tutan değişkenler
+	int front; // robotun Ã¶n saÄŸ ve solundaki geÃ§itlerin aÃ§Ä±k mÄ± kapalÄ± mÄ± olduÄŸunu tutan deÄŸiÅŸkenler
 	int right;
 	int left;
-	int front_visit; // robotun ön sağ ve solundaki karelerin ziyaret edilme sayılarını tutan değişkenler
+	int front_visit; // robotun Ã¶n saÄŸ ve solundaki karelerin ziyaret edilme sayÄ±larÄ±nÄ± tutan deÄŸiÅŸkenler
 	int right_visit;
 	int left_visit;
 };
 struct robot_inf robot;
 
-// En kısa yolu bulmaya çalışırken yapacağımız işlemler için köşelerin bilgilerini tutacak olan yapı.
+// En kÄ±sa yolu bulmaya Ã§alÄ±ÅŸÄ±rken yapacaÄŸÄ±mÄ±z iÅŸlemler iÃ§in kÃ¶ÅŸelerin bilgilerini tutacak olan yapÄ±.
 struct vertice_inf{
 	int column;
 	int line;
-	int number_of_connections; // kaç farklı köşeye bağlanıyor.
-	int connection[4]; // hangi köşelere bağlandığını tuttuğumuz değişkenler.
-                       // Köşelerin isimleri = vertice dizisindeki indexleri.
-                       // connection[0] y yönü, connection[1] v yönü, connection[2] x yönü, connection[3] c yönü.
-	int path_distance[4]; // bağlantı yollarının uzunlukları. connection dizisi ile aynı indexli
-	int checked; // en kısa yolu hesaplarken o köşeye uğrayıp uğramadığımızı kontrol etmek için bu değişkeni kontrol edicez. 
+	int number_of_connections; // kaÃ§ farklÄ± kÃ¶ÅŸeye baÄŸlanÄ±yor.
+	int connection[4]; // hangi kÃ¶ÅŸelere baÄŸlandÄ±ÄŸÄ±nÄ± tuttuÄŸumuz deÄŸiÅŸkenler.
+                       // KÃ¶ÅŸelerin isimleri = vertice dizisindeki indexleri.
+                       // connection[0] y yÃ¶nÃ¼, connection[1] v yÃ¶nÃ¼, connection[2] x yÃ¶nÃ¼, connection[3] c yÃ¶nÃ¼.
+	int path_distance[4]; // baÄŸlantÄ± yollarÄ±nÄ±n uzunluklarÄ±. connection dizisi ile aynÄ± indexli
+	int checked; // en kÄ±sa yolu hesaplarken o kÃ¶ÅŸeye uÄŸrayÄ±p uÄŸramadÄ±ÄŸÄ±mÄ±zÄ± kontrol etmek iÃ§in bu deÄŸiÅŸkeni kontrol edicez. 
 };
-struct vertice_inf vertice[50]; // kaç tane köşe olacağını bilemiyorum. 50'den fazla olmaz diye düşünüyorum. 50 bile baya abartı.
-int number_of_vertices; // köşe sayısı
+struct vertice_inf vertice[50]; // kaÃ§ tane kÃ¶ÅŸe olacaÄŸÄ±nÄ± bilemiyorum. 50'den fazla olmaz diye dÃ¼ÅŸÃ¼nÃ¼yorum. 50 bile baya abartÄ±.
+int number_of_vertices; // kÃ¶ÅŸe sayÄ±sÄ±
 int path[50];
 int shortest_path[50];
 int distance,shortest_distance;
@@ -161,9 +161,9 @@ void write3();
 int hamle;
 
 int main(){
-	// Python üzerinden simülasyon yapmak için verileri dosyalara yazıyoruz.
-	// Sonra o verileri pythonda dosyadan okuyarak simülasyon yapıyoruz.
-	// Kodu robota aktarırken dosya işlemleri silinecek.
+	// Python Ã¼zerinden simÃ¼lasyon yapmak iÃ§in verileri dosyalara yazÄ±yoruz.
+	// Sonra o verileri pythonda dosyadan okuyarak simÃ¼lasyon yapÄ±yoruz.
+	// Kodu robota aktarÄ±rken dosya iÅŸlemleri silinecek.
 	FILE *filep;
 	filep = fopen("maze runner.txt","w");
 	FILE *filep2;
@@ -184,9 +184,9 @@ int main(){
 }
 
 void find_the_target_section(){
-	// Başlangıç için bu yönü ve konumu kabul ediyoruz.
-	// Robotun labirente nasıl koyulduğunun önemi yok. 4 köşeden biri olması yeterli.
-	// Ancak eğer köşe değilse kodda biraz oynama yapmak gerek çünkü C'de arraylere negatif
+	// BaÅŸlangÄ±Ã§ iÃ§in bu yÃ¶nÃ¼ ve konumu kabul ediyoruz.
+	// Robotun labirente nasÄ±l koyulduÄŸunun Ã¶nemi yok. 4 kÃ¶ÅŸeden biri olmasÄ± yeterli.
+	// Ancak eÄŸer kÃ¶ÅŸe deÄŸilse kodda biraz oynama yapmak gerek Ã§Ã¼nkÃ¼ C'de arraylere negatif
 	// index verilmiyor.
 	robot.direction = 'y';
 	robot.column = 0;
@@ -195,14 +195,14 @@ void find_the_target_section(){
 	robot.right_visit = 0;
 	robot.left_visit = 0;
 	
-	// başlangıçta tüm kareleri ziyaret edilmedi ve bitiş değil işaretliyoruz.
-	// Ve tüm karelerin 4 tarafındaki geçitleri görülmedi olarak işaretliyoruz. 
+	// baÅŸlangÄ±Ã§ta tÃ¼m kareleri ziyaret edilmedi ve bitiÅŸ deÄŸil iÅŸaretliyoruz.
+	// Ve tÃ¼m karelerin 4 tarafÄ±ndaki geÃ§itleri gÃ¶rÃ¼lmedi olarak iÅŸaretliyoruz. 
 	int i,a; 
 	for(i=0; i<=11; i++){
 		for(a=0; a<=11; a++){
 			square[i][a].visit=0;
 			square[i][a].finish=0;
-			square[i][a].y_direction = 2; // 1 açık, 0 kapalı, 2 görülmedi demek.
+			square[i][a].y_direction = 2; // 1 aÃ§Ä±k, 0 kapalÄ±, 2 gÃ¶rÃ¼lmedi demek.
 			square[i][a].c_direction = 2;
 			square[i][a].v_direction = 2;
 			square[i][a].x_direction = 2;
@@ -210,55 +210,55 @@ void find_the_target_section(){
 	}
 	
 	
-	// Hedef kareyi bulana kadar dönecek olan döngü
+	// Hedef kareyi bulana kadar dÃ¶necek olan dÃ¶ngÃ¼
 	while(1){
 		descripe_square();
 		descripe_robot();
 		
-		if(square[robot.column][robot.line].finish == 1){ // eğer hedefe ulaştıysak döngüyü bitiriyoruz.
+		if(square[robot.column][robot.line].finish == 1){ // eÄŸer hedefe ulaÅŸtÄ±ysak dÃ¶ngÃ¼yÃ¼ bitiriyoruz.
 			break;
 		}
 		
 		choose_and_turn();
 		hamle++;
-		write2(); // Güncel labirent bilgilerini dosyaya yazıyoruz. 
+		write2(); // GÃ¼ncel labirent bilgilerini dosyaya yazÄ±yoruz. 
 		go_straight();
-		write(); // Hamleleri ekrana ve dosyaya yazıyoruz.
+		write(); // Hamleleri ekrana ve dosyaya yazÄ±yoruz.
 	}
 }
 
 void descripe_square(){
-	// burada normalde sensörlerden gelen verilere göre işlem yapıcaz.
-	// asıl konumun maze hali: square +1 +1
+	// burada normalde sensÃ¶rlerden gelen verilere gÃ¶re iÅŸlem yapÄ±caz.
+	// asÄ±l konumun maze hali: square +1 +1
 	int column_maze = robot.column*2+1;
 	int line_maze = robot.line*2+1;
 	if(square[robot.column][robot.line].visit == 0){
-		// daha önce ziyaret edilmedi ise 1 kere ziyaret edildi olarak işaretliyoruz 
-		// ve karenin 4 tarafındaki geçitleri kontrol ediyoruz açık mı kapalı mı diye.
+		// daha Ã¶nce ziyaret edilmedi ise 1 kere ziyaret edildi olarak iÅŸaretliyoruz 
+		// ve karenin 4 tarafÄ±ndaki geÃ§itleri kontrol ediyoruz aÃ§Ä±k mÄ± kapalÄ± mÄ± diye.
 		square[robot.column][robot.line].visit += 1;
 		if(maze[column_maze][line_maze] == 'x'){
-			square[robot.column][robot.line].finish = 1; // eğer x ise orası hedef karedir.
+			square[robot.column][robot.line].finish = 1; // eÄŸer x ise orasÄ± hedef karedir.
 		}
-		// baktığı yöne göre, maze dizisindeki kontrol edeceği eleman değişiyor
-		// o yüzden her yön için ayrı ayrı yazıyoruz.
+		// baktÄ±ÄŸÄ± yÃ¶ne gÃ¶re, maze dizisindeki kontrol edeceÄŸi eleman deÄŸiÅŸiyor
+		// o yÃ¼zden her yÃ¶n iÃ§in ayrÄ± ayrÄ± yazÄ±yoruz.
 		if(robot.direction == 'y'){
-			// arka zaten açıktır.
+			// arka zaten aÃ§Ä±ktÄ±r.
 			square[robot.column][robot.line].v_direction = 1;
-			//ön için: maze -1 0
+			//Ã¶n iÃ§in: maze -1 0
 			if(maze[column_maze-1][line_maze] == 'o'){
 				square[robot.column][robot.line].y_direction = 0;
 			}
 			else if(maze[column_maze-1][line_maze] == ' ' || maze[column_maze-1][line_maze] == 'x'){
 				square[robot.column][robot.line].y_direction = 1;
 			}
-			//sağ için: maze 0 +1
+			//saÄŸ iÃ§in: maze 0 +1
 			if(maze[column_maze][line_maze+1] == 'o'){
 				square[robot.column][robot.line].x_direction = 0;
 			}
 			else if(maze[column_maze][line_maze+1] == ' ' || maze[column_maze][line_maze+1] == 'x'){
 				square[robot.column][robot.line].x_direction = 1;
 			}
-			//sol için: maze 0 -1
+			//sol iÃ§in: maze 0 -1
 			if(maze[column_maze][line_maze-1] == 'o'){
 				square[robot.column][robot.line].c_direction = 0;
 			}
@@ -267,23 +267,23 @@ void descripe_square(){
 			}
 		}
 		else if(robot.direction == 'v'){
-			// arka zaten açıktır.
+			// arka zaten aÃ§Ä±ktÄ±r.
 			square[robot.column][robot.line].y_direction = 1;
-			//ön için: maze +1 0
+			//Ã¶n iÃ§in: maze +1 0
 			if(maze[column_maze+1][line_maze] == 'o'){
 				square[robot.column][robot.line].v_direction = 0;
 			}
 			else if(maze[column_maze+1][line_maze] == ' ' || maze[column_maze+1][line_maze] == 'x'){
 				square[robot.column][robot.line].v_direction = 1;
 			}
-			//sağ için: maze 0 -1
+			//saÄŸ iÃ§in: maze 0 -1
 			if(maze[column_maze][line_maze-1] == 'o'){
 				square[robot.column][robot.line].c_direction = 0;
 			}
 			else if(maze[column_maze][line_maze-1] == ' ' || maze[column_maze][line_maze-1] == 'x'){
 				square[robot.column][robot.line].c_direction = 1;
 			}
-			//sol için: maze 0 +1
+			//sol iÃ§in: maze 0 +1
 			if(maze[column_maze][line_maze+1] == 'o'){
 				square[robot.column][robot.line].x_direction = 0;
 			}
@@ -292,23 +292,23 @@ void descripe_square(){
 			}
 		}
 		else if(robot.direction == 'x'){
-			// arkda zaten açıktır.
+			// arkda zaten aÃ§Ä±ktÄ±r.
 			square[robot.column][robot.line].c_direction = 1;
-			//ön için: maze 0 +1
+			//Ã¶n iÃ§in: maze 0 +1
 			if(maze[column_maze][line_maze+1] == 'o'){
 				square[robot.column][robot.line].x_direction = 0;
 			}
 			else if(maze[column_maze][line_maze+1] == ' ' || maze[column_maze][line_maze+1] == 'x'){
 				square[robot.column][robot.line].x_direction = 1;
 			}
-			//sağ için: maze +1 0
+			//saÄŸ iÃ§in: maze +1 0
 			if(maze[column_maze+1][line_maze] == 'o'){
 				square[robot.column][robot.line].v_direction = 0;
 			}
 			else if(maze[column_maze+1][line_maze] == ' ' || maze[column_maze+1][line_maze] == 'x'){
 				square[robot.column][robot.line].v_direction = 1;
 			}
-			//sol için: maze -1 0
+			//sol iÃ§in: maze -1 0
 			if(maze[column_maze-1][line_maze] == 'o'){
 				square[robot.column][robot.line].y_direction = 0;
 			}
@@ -317,23 +317,23 @@ void descripe_square(){
 			}
 		}
 		else if(robot.direction == 'c'){
-			// arka zaten açıktır.
+			// arka zaten aÃ§Ä±ktÄ±r.
 			square[robot.column][robot.line].x_direction = 1;
-			//ön için: maze 0 -1
+			//Ã¶n iÃ§in: maze 0 -1
 			if(maze[column_maze][line_maze-1] == 'o'){
 				square[robot.column][robot.line].c_direction = 0;
 			}
 			else if(maze[column_maze][line_maze-1] == ' ' || maze[column_maze][line_maze-1] == 'x'){
 				square[robot.column][robot.line].c_direction = 1;
 			}
-			//sağ için: maze -1 0
+			//saÄŸ iÃ§in: maze -1 0
 			if(maze[column_maze-1][line_maze] == 'o'){
 				square[robot.column][robot.line].y_direction = 0;
 			}
 			else if(maze[column_maze-1][line_maze] == ' ' || maze[column_maze-1][line_maze] == 'x'){
 				square[robot.column][robot.line].y_direction = 1;
 			}
-			//sol için: maze +1 0
+			//sol iÃ§in: maze +1 0
 			if(maze[column_maze+1][line_maze] == 'o'){
 				square[robot.column][robot.line].v_direction = 0;
 			}
@@ -343,44 +343,44 @@ void descripe_square(){
 		}
 	}
 	else{
-		// Eğer daha önce ziyaret edildi ise tekrar 4 tarafı kontrol etmeye gerek yok.
-		// Visit değişkenini 1 arttırıyoruz.
-		// Çıkmaz yoldan geliyor olma ihtimalimiz var. O yüzden bir önceki karenin çıkmaz olup olmadığını
-		// kontrol edicez. Eğer çıkmazsa yani 3 tarafı kapalı ise geldiğimiz geçiti de kapalı işaretlicez.
-		// Böylece robot oraya tekrar gelirse orayı kapalı görecek ve girmicek. Çıkmazdan dönerken
-		// bu işlemi yapmaya devam ettiğimiz için çıkmaza giden tüm yollar kapalı işaretlenmiş olacak.
+		// EÄŸer daha Ã¶nce ziyaret edildi ise tekrar 4 tarafÄ± kontrol etmeye gerek yok.
+		// Visit deÄŸiÅŸkenini 1 arttÄ±rÄ±yoruz.
+		// Ã‡Ä±kmaz yoldan geliyor olma ihtimalimiz var. O yÃ¼zden bir Ã¶nceki karenin Ã§Ä±kmaz olup olmadÄ±ÄŸÄ±nÄ±
+		// kontrol edicez. EÄŸer Ã§Ä±kmazsa yani 3 tarafÄ± kapalÄ± ise geldiÄŸimiz geÃ§iti de kapalÄ± iÅŸaretlicez.
+		// BÃ¶ylece robot oraya tekrar gelirse orayÄ± kapalÄ± gÃ¶recek ve girmicek. Ã‡Ä±kmazdan dÃ¶nerken
+		// bu iÅŸlemi yapmaya devam ettiÄŸimiz iÃ§in Ã§Ä±kmaza giden tÃ¼m yollar kapalÄ± iÅŸaretlenmiÅŸ olacak.
 		square[robot.column][robot.line].visit += 1;
 		if(robot.direction == 'y'){
-			 // bir önceki karenin çıkmaz olup olmadığını kontrol ediyoruz.
+			 // bir Ã¶nceki karenin Ã§Ä±kmaz olup olmadÄ±ÄŸÄ±nÄ± kontrol ediyoruz.
 			if(square[robot.column+1][robot.line].v_direction == 0 && square[robot.column+1][robot.line].x_direction == 0 && square[robot.column+1][robot.line].c_direction == 0){
-				// eğer öyleyse ve o kare başlangıç karesi değilse geldiğimiz geçiti kapalı olarak işaretliyoruz.
+				// eÄŸer Ã¶yleyse ve o kare baÅŸlangÄ±Ã§ karesi deÄŸilse geldiÄŸimiz geÃ§iti kapalÄ± olarak iÅŸaretliyoruz.
 				if(robot.column+1 != 0 || robot.line != 0){
 					square[robot.column][robot.line].v_direction = 0;
 				}
 			}
 		}
 		else if(robot.direction == 'v'){
-			 // bir önceki karenin çıkmaz olup olmadığını kontrol ediyoruz.
+			 // bir Ã¶nceki karenin Ã§Ä±kmaz olup olmadÄ±ÄŸÄ±nÄ± kontrol ediyoruz.
 			if(square[robot.column-1][robot.line].y_direction == 0 && square[robot.column-1][robot.line].x_direction == 0 && square[robot.column-1][robot.line].c_direction == 0){
-				// eğer öyleyse ve o kare başlangıç karesi değilse geldiğimiz geçiti kapalı olarak işaretliyoruz.
+				// eÄŸer Ã¶yleyse ve o kare baÅŸlangÄ±Ã§ karesi deÄŸilse geldiÄŸimiz geÃ§iti kapalÄ± olarak iÅŸaretliyoruz.
 				if(robot.column-1 != 0 || robot.line != 0){
 					square[robot.column][robot.line].y_direction = 0;
 				}
 			}
 		}
 		else if(robot.direction == 'x'){
-			 // bir önceki karenin çıkmaz olup olmadığını kontrol ediyoruz.
+			 // bir Ã¶nceki karenin Ã§Ä±kmaz olup olmadÄ±ÄŸÄ±nÄ± kontrol ediyoruz.
 			if(square[robot.column][robot.line-1].c_direction == 0 && square[robot.column][robot.line-1].y_direction == 0 && square[robot.column][robot.line-1].v_direction == 0){
-				// eğer öyleyse ve o kare başlangıç karesi değilse geldiğimiz geçiti kapalı olarak işaretliyoruz.
+				// eÄŸer Ã¶yleyse ve o kare baÅŸlangÄ±Ã§ karesi deÄŸilse geldiÄŸimiz geÃ§iti kapalÄ± olarak iÅŸaretliyoruz.
 				if(robot.column != 0 || robot.line-1 != 0){
 					square[robot.column][robot.line].c_direction = 0;
 				}
 			}
 		}
 		else if(robot.direction == 'c'){
-			 // bir önceki karenin çıkmaz olup olmadığını kontrol ediyoruz.
+			 // bir Ã¶nceki karenin Ã§Ä±kmaz olup olmadÄ±ÄŸÄ±nÄ± kontrol ediyoruz.
 			if(square[robot.column][robot.line+1].x_direction == 0 && square[robot.column][robot.line+1].y_direction == 0 && square[robot.column][robot.line+1].v_direction == 0){
-				// eğer öyleyse ve o kare başlangıç karesi değilse geldiğimiz geçiti kapalı olarak işaretliyoruz.
+				// eÄŸer Ã¶yleyse ve o kare baÅŸlangÄ±Ã§ karesi deÄŸilse geldiÄŸimiz geÃ§iti kapalÄ± olarak iÅŸaretliyoruz.
 				if(robot.column != 0 || robot.line+1 != 0){
 					square[robot.column][robot.line].x_direction = 0;
 				}
@@ -389,8 +389,8 @@ void descripe_square(){
 	}
 }
 void descripe_robot(){
-	// Kare bilgilerini robotun o anki yönüne göre robot değişkenlerine aktarıyoruz.
-	// Böylece karar verme fonksiyonumuzda robotun yönünü düşünmemize gerek kalmıyor.
+	// Kare bilgilerini robotun o anki yÃ¶nÃ¼ne gÃ¶re robot deÄŸiÅŸkenlerine aktarÄ±yoruz.
+	// BÃ¶ylece karar verme fonksiyonumuzda robotun yÃ¶nÃ¼nÃ¼ dÃ¼ÅŸÃ¼nmemize gerek kalmÄ±yor.
 	if(robot.direction == 'y'){
 		robot.front = square[robot.column][robot.line].y_direction;
 		robot.right = square[robot.column][robot.line].x_direction;
@@ -425,27 +425,27 @@ void descripe_robot(){
 	}
 }
 void choose_and_turn(){
-	// geçitlerin açıklık durumuna göre hangi yöne gideceğimizi seçeceğiz.
-	// Tek geçit açıksa ordan gideceğiz. Birden fazla ise öncelik sırasına göre seçeceğiz.
+	// geÃ§itlerin aÃ§Ä±klÄ±k durumuna gÃ¶re hangi yÃ¶ne gideceÄŸimizi seÃ§eceÄŸiz.
+	// Tek geÃ§it aÃ§Ä±ksa ordan gideceÄŸiz. Birden fazla ise Ã¶ncelik sÄ±rasÄ±na gÃ¶re seÃ§eceÄŸiz.
 	if(robot.front == 0 && robot.right == 0 && robot.left == 0){
 		turn_around();
 	}
 	else if(robot.front == 0 && robot.right == 0){
-		//tek dönüş var
+		//tek dÃ¶nÃ¼ÅŸ var
 		turn_left();
 	}
 	else if(robot.front == 0 && robot.left == 0){
-		//tek dönüş var
+		//tek dÃ¶nÃ¼ÅŸ var
 		turn_right();
 	}
 	else if(robot.right == 0 && robot.left == 0){
-		//sadece ön açık o yüzden dönmüyoruz
+		//sadece Ã¶n aÃ§Ä±k o yÃ¼zden dÃ¶nmÃ¼yoruz
 	}
-	// Bundan sonraki ihtimallerde iki tane açık geçit var.
-	// Bu iki karenin ziyaret edilme sayısını kontrol etmeliyiz.
-	// Ziyaret edilme sayısı daha az olan kareye gideceğiz.
+	// Bundan sonraki ihtimallerde iki tane aÃ§Ä±k geÃ§it var.
+	// Bu iki karenin ziyaret edilme sayÄ±sÄ±nÄ± kontrol etmeliyiz.
+	// Ziyaret edilme sayÄ±sÄ± daha az olan kareye gideceÄŸiz.
 	else if(robot.front == 0){
-		// sağ ve sol açık.
+		// saÄŸ ve sol aÃ§Ä±k.
 		if(robot.right_visit <= robot.left_visit){
 			turn_right();
 		}
@@ -454,27 +454,27 @@ void choose_and_turn(){
 		}
 	}
 	else if(robot.right == 0){
-		//ön ve sol açık
+		//Ã¶n ve sol aÃ§Ä±k
 		if(robot.front_visit <= robot.left_visit){
-			//dönmüyoruz
+			//dÃ¶nmÃ¼yoruz
 		}
 		else{
 			turn_left();
 		}
 	}
 	else if(robot.left == 0){
-		//ön ve sağ açık
+		//Ã¶n ve saÄŸ aÃ§Ä±k
 		if(robot.front_visit <= robot.right_visit){
-			//dönmüyoruz
+			//dÃ¶nmÃ¼yoruz
 		}
 		else{
 			turn_right();
 		}
 	}
 	else{
-		//tüm yönler açık
+		//tÃ¼m yÃ¶nler aÃ§Ä±k
 		if(robot.front_visit <= robot.right_visit && robot.front_visit <= robot.left_visit){
-			// dönmüyoruz
+			// dÃ¶nmÃ¼yoruz
 		}
 		else if(robot.right_visit <= robot.front_visit && robot.right_visit <= robot.left_visit){
 			turn_right();
@@ -543,16 +543,16 @@ void go_straight(){
 	}
 }
 void find_the_shortest_path(){
-	// Bu fonksiyon robot hedef kareyi bulduktan sonra çalışacak.
-	// Başlangıç ile bitiş arasındaki en kısa yolu bulucaz.
-	// Bunu yaparken ziyaret edilmiş olan karelere göre işlem yapacağız.
-	// Ziyaret edilmeyen karelere giden geçitleri kapalı kabul edeceğiz.
-	// En kısa yol ziyaret edilmeyen karelerden geçiyor da olabilir ancak
-	// biz bunu bu aşamada bilemiyoruz. İlerleyen zamanlarda bunun için de bir
-	// çözüm üretmeliyiz. Şimdilik bu kodu tamamlayıp elimizde çalışan bir kod olması
-	// üzerine yoğunlaşıyorum.
+	// Bu fonksiyon robot hedef kareyi bulduktan sonra Ã§alÄ±ÅŸacak.
+	// BaÅŸlangÄ±Ã§ ile bitiÅŸ arasÄ±ndaki en kÄ±sa yolu bulucaz.
+	// Bunu yaparken ziyaret edilmiÅŸ olan karelere gÃ¶re iÅŸlem yapacaÄŸÄ±z.
+	// Ziyaret edilmeyen karelere giden geÃ§itleri kapalÄ± kabul edeceÄŸiz.
+	// En kÄ±sa yol ziyaret edilmeyen karelerden geÃ§iyor da olabilir ancak
+	// biz bunu bu aÅŸamada bilemiyoruz. Ä°lerleyen zamanlarda bunun iÃ§in de bir
+	// Ã§Ã¶zÃ¼m Ã¼retmeliyiz. Åimdilik bu kodu tamamlayÄ±p elimizde Ã§alÄ±ÅŸan bir kod olmasÄ±
+	// Ã¼zerine yoÄŸunlaÅŸÄ±yorum.
 	
-	// Ziyaret edilmeyen karelere giden geçitleri kapalı olarak işaretliyoruz.
+	// Ziyaret edilmeyen karelere giden geÃ§itleri kapalÄ± olarak iÅŸaretliyoruz.
 	int i=0,a=0,i2=0,a2=0;
 	for (i=0; i<=11; i++){
 		for(a=0; a<=11; a++){
@@ -565,15 +565,15 @@ void find_the_shortest_path(){
 		}
 	}
 	hamle++;
-	//simülasyonde görmek için yazdırıyoruz
+	//simÃ¼lasyonde gÃ¶rmek iÃ§in yazdÄ±rÄ±yoruz
 	write3();
 	
-	// Program bir geçiti iki farklı değişkende tutuyor. Örneğin 0 0 karesinin x yönündeki geçiti
-	// square[0][0].x_direction değişkeni ile square[0][1].c_direction değişkenleri tutuyor. Çıkmaz
-	// yola giden geçitleri kapalı kabul ederken herhangi bir geçit için bu iki değişkenden bir tanesini
-	// kapalı olarak kabul ettik. Aynısını ziyaret edilmeyen karelere giden geçitleri kapalı olarak
-	// işaretlerken de yaptık. Şimdi burda her geçit için o iki değişkeni birbirine eşitleyeceğiz.
-	// Sadece biri kapalı ise diğerini de kapalı yapıcaz. İkisi de kapalı veya açıksa değişiklik olmicak.	
+	// Program bir geÃ§iti iki farklÄ± deÄŸiÅŸkende tutuyor. Ã–rneÄŸin 0 0 karesinin x yÃ¶nÃ¼ndeki geÃ§iti
+	// square[0][0].x_direction deÄŸiÅŸkeni ile square[0][1].c_direction deÄŸiÅŸkenleri tutuyor. Ã‡Ä±kmaz
+	// yola giden geÃ§itleri kapalÄ± kabul ederken herhangi bir geÃ§it iÃ§in bu iki deÄŸiÅŸkenden bir tanesini
+	// kapalÄ± olarak kabul ettik. AynÄ±sÄ±nÄ± ziyaret edilmeyen karelere giden geÃ§itleri kapalÄ± olarak
+	// iÅŸaretlerken de yaptÄ±k. Åimdi burda her geÃ§it iÃ§in o iki deÄŸiÅŸkeni birbirine eÅŸitleyeceÄŸiz.
+	// Sadece biri kapalÄ± ise diÄŸerini de kapalÄ± yapÄ±caz. Ä°kisi de kapalÄ± veya aÃ§Ä±ksa deÄŸiÅŸiklik olmicak.	
 	for (i=0; i<=10; i++){
 		for(a=0; a<=10; a++){ 
 			if(square[i][a].x_direction == 0 || square[i][a+1].c_direction == 0){
@@ -587,20 +587,20 @@ void find_the_shortest_path(){
 		}
 	}
 	hamle++;
-	//simülasyonde görmek için yazdırıyoruz
+	//simÃ¼lasyonde gÃ¶rmek iÃ§in yazdÄ±rÄ±yoruz
 	write3();
 	
-	// Dijkstra en kısa yol algoritmasını yapmaya çalışıyorum. Başlangıçdan hedefe ulaşana kadar yaptığım
-	// haritalandırma sonucunda 3 veya 4 tarafı açık kalan kareler Köşe(Vertices) olacak. 
-	// Başlangıç ve hedef karelerinin  kaç tarafı açık olduğunun önemi yok onlar da köşe olacak.
-	// 2 tarafı açık olan kareler köşeleri bağlayan yollardır. İki köşe arasındaki karelerin sayısı yol uzunluğudur.
-	// Labirentteki hedef karesini başlangıç köşesi, başlangıç karesini de bitiş köşesi kabul ederek djikstra algoritmasını
-	// uygulamaya çalışacağım.
+	// Dijkstra en kÄ±sa yol algoritmasÄ±nÄ± yapmaya Ã§alÄ±ÅŸÄ±yorum. BaÅŸlangÄ±Ã§dan hedefe ulaÅŸana kadar yaptÄ±ÄŸÄ±m
+	// haritalandÄ±rma sonucunda 3 veya 4 tarafÄ± aÃ§Ä±k kalan kareler KÃ¶ÅŸe(Vertices) olacak. 
+	// BaÅŸlangÄ±Ã§ ve hedef karelerinin  kaÃ§ tarafÄ± aÃ§Ä±k olduÄŸunun Ã¶nemi yok onlar da kÃ¶ÅŸe olacak.
+	// 2 tarafÄ± aÃ§Ä±k olan kareler kÃ¶ÅŸeleri baÄŸlayan yollardÄ±r. Ä°ki kÃ¶ÅŸe arasÄ±ndaki karelerin sayÄ±sÄ± yol uzunluÄŸudur.
+	// Labirentteki hedef karesini baÅŸlangÄ±Ã§ kÃ¶ÅŸesi, baÅŸlangÄ±Ã§ karesini de bitiÅŸ kÃ¶ÅŸesi kabul ederek djikstra algoritmasÄ±nÄ±
+	// uygulamaya Ã§alÄ±ÅŸacaÄŸÄ±m.
 	
-	// başlangıç karesi ilk köşemiz.
+	// baÅŸlangÄ±Ã§ karesi ilk kÃ¶ÅŸemiz.
 	vertice[0].column = 0;
 	vertice[0].line = 0;
-	int wall[4]; // vertice[0]'ın bağlantı sayısı kontrol edilmeye başlanıyor
+	int wall[4]; // vertice[0]'Ä±n baÄŸlantÄ± sayÄ±sÄ± kontrol edilmeye baÅŸlanÄ±yor
 	wall[0] = square[0][0].y_direction;
 	wall[1] = square[0][0].v_direction;
 	wall[2] = square[0][0].x_direction;
@@ -613,7 +613,7 @@ void find_the_shortest_path(){
 		}
 	}
 	
-	// Hedef kare ikinci köşemiz. hedef kareyi buluyoruz
+	// Hedef kare ikinci kÃ¶ÅŸemiz. hedef kareyi buluyoruz
 	for(i=0; i<=11; i++){
 		for(a=0; a<=11; a++){
 			if(square[i][a].finish == 1){
@@ -621,7 +621,7 @@ void find_the_shortest_path(){
 				vertice[1].line = a;
 			}
 		}
-	} // vertice [1]'in bağlantı sayısını kontrol etmeye başlıyoruz
+	} // vertice [1]'in baÄŸlantÄ± sayÄ±sÄ±nÄ± kontrol etmeye baÅŸlÄ±yoruz
 	wall[0] = square[vertice[1].column][vertice[1].line].y_direction;
 	wall[1] = square[vertice[1].column][vertice[1].line].v_direction;
 	wall[2] = square[vertice[1].column][vertice[1].line].x_direction;
@@ -634,13 +634,13 @@ void find_the_shortest_path(){
 		}
 	}
 	
-	number_of_vertices = 2; // şu ana kadar iki tane köşe tanımladık.
+	number_of_vertices = 2; // ÅŸu ana kadar iki tane kÃ¶ÅŸe tanÄ±mladÄ±k.
 	
-	// diğer köşeleri tanımlıyoruz. Tüm kareleri tarıyorum bunlardan 3 veya 4 tarafı açık olan kare köşedir.
+	// diÄŸer kÃ¶ÅŸeleri tanÄ±mlÄ±yoruz. TÃ¼m kareleri tarÄ±yorum bunlardan 3 veya 4 tarafÄ± aÃ§Ä±k olan kare kÃ¶ÅŸedir.
 	for(i=0; i<=11; i++){
 		for(a=0; a<=11; a++){
 			if((i == 0 && a == 0) || square[i][a].finish == 1){
-				// bunları zaten tanımladık o yüzden bunlar için işlem yapmıyoruz.
+				// bunlarÄ± zaten tanÄ±mladÄ±k o yÃ¼zden bunlar iÃ§in iÅŸlem yapmÄ±yoruz.
 			}
 			else{
 				wall[0] = square[i][a].y_direction;
@@ -654,54 +654,54 @@ void find_the_shortest_path(){
 				}
 				
 				if(a2 == 3){
-					// 3 geçit açık yani bu kare köşe.
+					// 3 geÃ§it aÃ§Ä±k yani bu kare kÃ¶ÅŸe.
 					number_of_vertices++;
 					vertice[number_of_vertices-1].column = i;
 					vertice[number_of_vertices-1].line = a;
 					vertice[number_of_vertices-1].number_of_connections = 3;
 				}
 				else if(a2 == 4){
-					// 4 geçit açık yani bu kare köşe.
+					// 4 geÃ§it aÃ§Ä±k yani bu kare kÃ¶ÅŸe.
 					number_of_vertices++;
 					vertice[number_of_vertices-1].column = i;
 					vertice[number_of_vertices-1].line = a;
 					vertice[number_of_vertices-1].number_of_connections = 4;
 				}
-				a2 = 0; // kontrol sayacımızı sıfırlıyoruz.
+				a2 = 0; // kontrol sayacÄ±mÄ±zÄ± sÄ±fÄ±rlÄ±yoruz.
 			}
 		}
 	}
 	
-	// köşeleri ekrana yazıyoruz
+	// kÃ¶ÅŸeleri ekrana yazÄ±yoruz
 	
 	printf("\n Kose sayisi: %d\n",number_of_vertices);
 	for(i=0; i<number_of_vertices; i++){
 		printf("Kose %d: %d %d. Baglanti sayisi: %d\n",i,vertice[i].column,vertice[i].line,vertice[i].number_of_connections);
 	}
 	
-	// bağlantıları ve yol uzunluklarını tanımlıyoruz.
-	// burada path_distance dizisinin bazı elemanları 0 kalacak.
-	// oralardan bağlantı olmadığı anlamına geliyor.
-	// connection dizisinin de bağlantı olmayan elemanları ve vertice[0]'a bağlanan
-	// elemanları 0 olacak. o yüzden connection[x] sıfırsa onun vertice[0]' bağlı olup olmadığını
-	// anlamak için path_distance[x]'i de kontrol etmeliyiz. Eğer path_distance[x] sıfır değilse o bağlantı vardır.
+	// baÄŸlantÄ±larÄ± ve yol uzunluklarÄ±nÄ± tanÄ±mlÄ±yoruz.
+	// burada path_distance dizisinin bazÄ± elemanlarÄ± 0 kalacak.
+	// oralardan baÄŸlantÄ± olmadÄ±ÄŸÄ± anlamÄ±na geliyor.
+	// connection dizisinin de baÄŸlantÄ± olmayan elemanlarÄ± ve vertice[0]'a baÄŸlanan
+	// elemanlarÄ± 0 olacak. o yÃ¼zden connection[x] sÄ±fÄ±rsa onun vertice[0]' baÄŸlÄ± olup olmadÄ±ÄŸÄ±nÄ±
+	// anlamak iÃ§in path_distance[x]'i de kontrol etmeliyiz. EÄŸer path_distance[x] sÄ±fÄ±r deÄŸilse o baÄŸlantÄ± vardÄ±r.
 	for(i=0; i<number_of_vertices; i++){
 		for(a=0; a<4; a++){
-			vertice[i].path_distance[a] = 0; // başlamadan önce tüm yol uzunluklarını ve bağlantıları sıfır yapıyoruz.
+			vertice[i].path_distance[a] = 0; // baÅŸlamadan Ã¶nce tÃ¼m yol uzunluklarÄ±nÄ± ve baÄŸlantÄ±larÄ± sÄ±fÄ±r yapÄ±yoruz.
 			vertice[i].connection[a] = 0;
 		}
 	}
 	
 	for(i=0; i<number_of_vertices; i++){
-		//bu 4 fonksiyon o köşenin o yönündeki geçitten hangi köşeye bağlandığını
-		//ve bu bağlantının yol uzunluğunun ne kadar olduğunu buluyor.
-		//her yön için farklı bir fonksiyon. 
+		//bu 4 fonksiyon o kÃ¶ÅŸenin o yÃ¶nÃ¼ndeki geÃ§itten hangi kÃ¶ÅŸeye baÄŸlandÄ±ÄŸÄ±nÄ±
+		//ve bu baÄŸlantÄ±nÄ±n yol uzunluÄŸunun ne kadar olduÄŸunu buluyor.
+		//her yÃ¶n iÃ§in farklÄ± bir fonksiyon. 
 		check_y(vertice[i].column, vertice[i].line, i, 0, 0); 
 		check_v(vertice[i].column, vertice[i].line, i, 1, 0);
 		check_x(vertice[i].column, vertice[i].line, i, 2, 0);
 		check_c(vertice[i].column, vertice[i].line, i, 3, 0);
 	}
-	// bağlantıları ve yol uzunluklarını ekrana yazıyoruz.
+	// baÄŸlantÄ±larÄ± ve yol uzunluklarÄ±nÄ± ekrana yazÄ±yoruz.
 	
 	for(i=0; i<number_of_vertices; i++){
 		printf("\nKose %d baglantilar:\n",i);
@@ -717,40 +717,40 @@ void find_the_shortest_path(){
 		printf("\n");
 	}
 	
-	// Artık tüm köşeleri, köşelerin diğer hangi köşelere bağlandıklarını ve yol uzunluklarını biliyoruz.
-	// Bunları kullanarak vertice[1]'den(labirentteki hedef kare) vertice[0]'a(labirentin başlangıç karesi)
-	// en kısa yolu bulmaya çalışacağım. connection[0] y yönü, connection[1] v yönü, connection[2] x yönü, connection[3] c yönü.
-	// başlamadan önce yolu tuttuğumuz dizilerin tüm elemanlarını 51 yapıyoruz.
-	// 51 o indexde köşe yok demek.
-	// ve distance değişkenlerini başlangıç için ayarlıyoruz.
+	// ArtÄ±k tÃ¼m kÃ¶ÅŸeleri, kÃ¶ÅŸelerin diÄŸer hangi kÃ¶ÅŸelere baÄŸlandÄ±klarÄ±nÄ± ve yol uzunluklarÄ±nÄ± biliyoruz.
+	// BunlarÄ± kullanarak vertice[1]'den(labirentteki hedef kare) vertice[0]'a(labirentin baÅŸlangÄ±Ã§ karesi)
+	// en kÄ±sa yolu bulmaya Ã§alÄ±ÅŸacaÄŸÄ±m. connection[0] y yÃ¶nÃ¼, connection[1] v yÃ¶nÃ¼, connection[2] x yÃ¶nÃ¼, connection[3] c yÃ¶nÃ¼.
+	// baÅŸlamadan Ã¶nce yolu tuttuÄŸumuz dizilerin tÃ¼m elemanlarÄ±nÄ± 51 yapÄ±yoruz.
+	// 51 o indexde kÃ¶ÅŸe yok demek.
+	// ve distance deÄŸiÅŸkenlerini baÅŸlangÄ±Ã§ iÃ§in ayarlÄ±yoruz.
 	for(i=0; i<50; i++){
 		path[i] = 51;
 		shortest_path[i] = 51;
 	}
 	distance = 0;
 	shortest_distance = 145;
-	path[0] = 1; // en kısa yolun başlangıcı vertice dizisinin 1 indexli elemanı. Yani labirentin hedef noktası.
+	path[0] = 1; // en kÄ±sa yolun baÅŸlangÄ±cÄ± vertice dizisinin 1 indexli elemanÄ±. Yani labirentin hedef noktasÄ±.
 	for(i=0; i<number_of_vertices; i++){
 		vertice[i].checked = 0;
 	}
 	
-	path_comparator(1, 1); // en kısa yolu bulan fonksiyon
+	path_comparator(1, 1); // en kÄ±sa yolu bulan fonksiyon
 	
-	// en kısa yol uzunluğunu ve yolu ekrana yazıyoruz.
+	// en kÄ±sa yol uzunluÄŸunu ve yolu ekrana yazÄ±yoruz.
 	printf("\n\n%d\n\n",shortest_distance);
 	i=0;
 	while(path[i] != 51){
 		printf("%d\n",shortest_path[i]);
 		i++;
 	}
-	//En kısa yolu bulduk şimdi buna göre kare bilgilerini güncellicez.
-	//Köşelerin en kısa yola gitmeyen geçitlerini kapatıcaz.
-	//Böylece elimizde sadece tek bir yol kalmış olacak başlangıç ve bitiş arasında.
+	//En kÄ±sa yolu bulduk ÅŸimdi buna gÃ¶re kare bilgilerini gÃ¼ncellicez.
+	//KÃ¶ÅŸelerin en kÄ±sa yola gitmeyen geÃ§itlerini kapatÄ±caz.
+	//BÃ¶ylece elimizde sadece tek bir yol kalmÄ±ÅŸ olacak baÅŸlangÄ±Ã§ ve bitiÅŸ arasÄ±nda.
 	//Robot da bu yoldan gidecek.
-	//En kısa yol hedef kareden başlayıp başlangıç karesine kadar sürüyor.
+	//En kÄ±sa yol hedef kareden baÅŸlayÄ±p baÅŸlangÄ±Ã§ karesine kadar sÃ¼rÃ¼yor.
 	i=0;
 	while(shortest_path[i] != 0){
-		//connection[0] y yönü, connection[1] v yönü, connection[2] x yönü, connection[3] c yönü.
+		//connection[0] y yÃ¶nÃ¼, connection[1] v yÃ¶nÃ¼, connection[2] x yÃ¶nÃ¼, connection[3] c yÃ¶nÃ¼.
 		
 		if(vertice[shortest_path[i]].connection[0] != shortest_path[i+1] && vertice[shortest_path[i]].connection[0] != shortest_path[i-1]){
 			square[vertice[shortest_path[i]].column][vertice[shortest_path[i]].line].y_direction = 0;
@@ -766,8 +766,8 @@ void find_the_shortest_path(){
 		}
 	i++;
 	}
-	//square dizisinde geçitler üzerinde değişiklik yaptık ve bir geçit 2 farklı değişkende tutuluyordu
-	//ama biz bu ikisinden birini 0 yaptık o yüzden daha önce yaptığımız gibi bu iki değişkeni eşitlicez.
+	//square dizisinde geÃ§itler Ã¼zerinde deÄŸiÅŸiklik yaptÄ±k ve bir geÃ§it 2 farklÄ± deÄŸiÅŸkende tutuluyordu
+	//ama biz bu ikisinden birini 0 yaptÄ±k o yÃ¼zden daha Ã¶nce yaptÄ±ÄŸÄ±mÄ±z gibi bu iki deÄŸiÅŸkeni eÅŸitlicez.
 	for (i=0; i<=10; i++){
 		for(a=0; a<=10; a++){ 
 			if(square[i][a].x_direction == 0 || square[i][a+1].c_direction == 0){
@@ -781,22 +781,22 @@ void find_the_shortest_path(){
 		}
 	}
 	hamle++;
-	//simülasyonde görmek için yazdırıyoruz
+	//simÃ¼lasyonde gÃ¶rmek iÃ§in yazdÄ±rÄ±yoruz
 	write3();
 }
 int path_comparator(int v_index, int path_index){
 	int a,i;
-	for(a=0; a<=3; a++){ // o köşenin geçitlerini kontrol ediyoruz başka bir köşeye bağlanıyor mu diye.
-		if(vertice[v_index].path_distance[a] > 0){ // bağlantı var
+	for(a=0; a<=3; a++){ // o kÃ¶ÅŸenin geÃ§itlerini kontrol ediyoruz baÅŸka bir kÃ¶ÅŸeye baÄŸlanÄ±yor mu diye.
+		if(vertice[v_index].path_distance[a] > 0){ // baÄŸlantÄ± var
 			if(vertice[vertice[v_index].connection[a]].checked == 1){
-				// bu köşe daha önce yola katıldı.
-				// bir şey yapma döngü devam etsin.
+				// bu kÃ¶ÅŸe daha Ã¶nce yola katÄ±ldÄ±.
+				// bir ÅŸey yapma dÃ¶ngÃ¼ devam etsin.
 			}
 			else if(vertice[v_index].connection[a] == 0){
 				distance += vertice[v_index].path_distance[a];
 				path[path_index] = vertice[v_index].connection[a];
-				// labirentin başlangıç noktasına geldik
-				// yol oluşmuş oldu.
+				// labirentin baÅŸlangÄ±Ã§ noktasÄ±na geldik
+				// yol oluÅŸmuÅŸ oldu.
 				if(distance < shortest_distance){
 					shortest_distance = distance;
 					for(i=0; i<50; i++){
@@ -823,13 +823,13 @@ int check_y(int column, int line, int vertice_index, int connection_index, int p
 	int i;
 	int connection_found = 0;
 	if(square[column][line].y_direction == 1){
-		// y yönü açık ise o kareye geçiyoruz ve o karenin köşe olup olmadığını kontrol ediyoruz.
+		// y yÃ¶nÃ¼ aÃ§Ä±k ise o kareye geÃ§iyoruz ve o karenin kÃ¶ÅŸe olup olmadÄ±ÄŸÄ±nÄ± kontrol ediyoruz.
 		path_distance++;
 		column -= 1;
 		for(i=0; i<number_of_vertices; i++){
 			if(column == vertice[i].column && line == vertice[i].line){
-				// başka bir köşeye ulaştık.
-				// köşemiz vertice dizisindeki i indexli köşe ile bağlantılı.
+				// baÅŸka bir kÃ¶ÅŸeye ulaÅŸtÄ±k.
+				// kÃ¶ÅŸemiz vertice dizisindeki i indexli kÃ¶ÅŸe ile baÄŸlantÄ±lÄ±.
 				vertice[vertice_index].connection[connection_index] = i;
 				vertice[vertice_index].path_distance[connection_index] = path_distance;
 				connection_found = 1;
@@ -837,12 +837,12 @@ int check_y(int column, int line, int vertice_index, int connection_index, int p
 			}
 		}
 		if(connection_found == 0){
-			// yol açık ama geldiğimiz kare köşe değil ise ilerlemeye devam ediyoruz.
+			// yol aÃ§Ä±k ama geldiÄŸimiz kare kÃ¶ÅŸe deÄŸil ise ilerlemeye devam ediyoruz.
 			if(check_y(column, line, vertice_index, connection_index, path_distance) == 0){
-				// y kapalı ise x i kontrol ediyoruz
+				// y kapalÄ± ise x i kontrol ediyoruz
 				if(check_x(column, line, vertice_index, connection_index, path_distance) == 0){
-					// x kapalı ise c yi kontrol ediyoruz.
-					if(check_c(column, line, vertice_index, connection_index, path_distance) == 1){ // c kapalı olmamalı.
+					// x kapalÄ± ise c yi kontrol ediyoruz.
+					if(check_c(column, line, vertice_index, connection_index, path_distance) == 1){ // c kapalÄ± olmamalÄ±.
 						return 1;
 					}
 				}
@@ -854,7 +854,7 @@ int check_y(int column, int line, int vertice_index, int connection_index, int p
 		}
 	}
 	else{
-		// y yönü kapalı.
+		// y yÃ¶nÃ¼ kapalÄ±.
 		return 0;
 	}
 }
@@ -863,13 +863,13 @@ int check_v(int column, int line, int vertice_index, int connection_index, int p
 	int i;
 	int connection_found = 0;
 	if(square[column][line].v_direction == 1){
-		// v yönü açık ise o kareye geçiyoruz ve o karenin köşe olup olmadığını kontrol ediyoruz.
+		// v yÃ¶nÃ¼ aÃ§Ä±k ise o kareye geÃ§iyoruz ve o karenin kÃ¶ÅŸe olup olmadÄ±ÄŸÄ±nÄ± kontrol ediyoruz.
 		path_distance++;
 		column += 1;
 		for(i=0; i<number_of_vertices; i++){
 			if(column == vertice[i].column && line == vertice[i].line){
-				// başka bir köşeye ulaştık.
-				// köşemiz vertice dizisindeki i indexli köşe ile bağlantılı.
+				// baÅŸka bir kÃ¶ÅŸeye ulaÅŸtÄ±k.
+				// kÃ¶ÅŸemiz vertice dizisindeki i indexli kÃ¶ÅŸe ile baÄŸlantÄ±lÄ±.
 				vertice[vertice_index].connection[connection_index] = i;
 				vertice[vertice_index].path_distance[connection_index] = path_distance;
 				connection_found = 1;
@@ -877,12 +877,12 @@ int check_v(int column, int line, int vertice_index, int connection_index, int p
 			}
 		}
 		if(connection_found == 0){
-			// yol açık ama geldiğimiz kare köşe değil ise ilerlemeye devam ediyoruz.
+			// yol aÃ§Ä±k ama geldiÄŸimiz kare kÃ¶ÅŸe deÄŸil ise ilerlemeye devam ediyoruz.
 			if(check_v(column, line, vertice_index, connection_index, path_distance) == 0){
-				// v kapalı ise x i kontrol ediyoruz
+				// v kapalÄ± ise x i kontrol ediyoruz
 				if(check_x(column, line, vertice_index, connection_index, path_distance) == 0){
-					// x kapalı ise c yi kontrol ediyoruz.
-					if(check_c(column, line, vertice_index, connection_index, path_distance) == 1){ // c kapalı olmamalı.
+					// x kapalÄ± ise c yi kontrol ediyoruz.
+					if(check_c(column, line, vertice_index, connection_index, path_distance) == 1){ // c kapalÄ± olmamalÄ±.
 						return 1;
 					}
 				}
@@ -894,7 +894,7 @@ int check_v(int column, int line, int vertice_index, int connection_index, int p
 		}
 	}
 	else{
-		// v yönü kapalı.
+		// v yÃ¶nÃ¼ kapalÄ±.
 		return 0;
 	}
 }
@@ -903,13 +903,13 @@ int check_x(int column, int line, int vertice_index, int connection_index, int p
 	int i;
 	int connection_found = 0;
 	if(square[column][line].x_direction == 1){
-		// x yönü açık ise o kareye geçiyoruz ve o karenin köşe olup olmadığını kontrol ediyoruz.
+		// x yÃ¶nÃ¼ aÃ§Ä±k ise o kareye geÃ§iyoruz ve o karenin kÃ¶ÅŸe olup olmadÄ±ÄŸÄ±nÄ± kontrol ediyoruz.
 		path_distance++;
 		line += 1;
 		for(i=0; i<number_of_vertices; i++){
 			if(column == vertice[i].column && line == vertice[i].line){
-				// başka bir köşeye ulaştık.
-				// köşemiz vertice dizisindeki i indexli köşe ile bağlantılı.
+				// baÅŸka bir kÃ¶ÅŸeye ulaÅŸtÄ±k.
+				// kÃ¶ÅŸemiz vertice dizisindeki i indexli kÃ¶ÅŸe ile baÄŸlantÄ±lÄ±.
 				vertice[vertice_index].connection[connection_index] = i;
 				vertice[vertice_index].path_distance[connection_index] = path_distance;
 				connection_found = 1;
@@ -917,12 +917,12 @@ int check_x(int column, int line, int vertice_index, int connection_index, int p
 			}
 		}
 		if(connection_found == 0){
-			// yol açık ama geldiğimiz kare köşe değil ise ilerlemeye devam ediyoruz.
+			// yol aÃ§Ä±k ama geldiÄŸimiz kare kÃ¶ÅŸe deÄŸil ise ilerlemeye devam ediyoruz.
 			if(check_x(column, line, vertice_index, connection_index, path_distance) == 0){
-				// x kapalı ise y i kontrol ediyoruz
+				// x kapalÄ± ise y i kontrol ediyoruz
 				if(check_y(column, line, vertice_index, connection_index, path_distance) == 0){
-					// y kapalı ise v yi kontrol ediyoruz.
-					if(check_v(column, line, vertice_index, connection_index, path_distance) == 1){ // v kapalı olmamalı.
+					// y kapalÄ± ise v yi kontrol ediyoruz.
+					if(check_v(column, line, vertice_index, connection_index, path_distance) == 1){ // v kapalÄ± olmamalÄ±.
 						return 1;
 					}
 				}
@@ -934,7 +934,7 @@ int check_x(int column, int line, int vertice_index, int connection_index, int p
 		}
 	}
 	else{
-		// x yönü kapalı.
+		// x yÃ¶nÃ¼ kapalÄ±.
 		return 0;
 	}
 }
@@ -942,13 +942,13 @@ int check_c(int column, int line, int vertice_index, int connection_index, int p
 	int i;
 	int connection_found = 0;
 	if(square[column][line].c_direction == 1){
-		// c yönü açık ise o kareye geçiyoruz ve o karenin köşe olup olmadığını kontrol ediyoruz.
+		// c yÃ¶nÃ¼ aÃ§Ä±k ise o kareye geÃ§iyoruz ve o karenin kÃ¶ÅŸe olup olmadÄ±ÄŸÄ±nÄ± kontrol ediyoruz.
 		path_distance++;
 		line -= 1;
 		for(i=0; i<number_of_vertices; i++){
 			if(column == vertice[i].column && line == vertice[i].line){
-				// başka bir köşeye ulaştık.
-				// köşemiz vertice dizisindeki i indexli köşe ile bağlantılı.
+				// baÅŸka bir kÃ¶ÅŸeye ulaÅŸtÄ±k.
+				// kÃ¶ÅŸemiz vertice dizisindeki i indexli kÃ¶ÅŸe ile baÄŸlantÄ±lÄ±.
 				vertice[vertice_index].connection[connection_index] = i;
 				vertice[vertice_index].path_distance[connection_index] = path_distance;
 				connection_found = 1;
@@ -956,12 +956,12 @@ int check_c(int column, int line, int vertice_index, int connection_index, int p
 			}
 		}
 		if(connection_found == 0){
-			// yol açık ama geldiğimiz kare köşe değil ise ilerlemeye devam ediyoruz.
+			// yol aÃ§Ä±k ama geldiÄŸimiz kare kÃ¶ÅŸe deÄŸil ise ilerlemeye devam ediyoruz.
 			if(check_c(column, line, vertice_index, connection_index, path_distance) == 0){
-				// c kapalı ise y i kontrol ediyoruz
+				// c kapalÄ± ise y i kontrol ediyoruz
 				if(check_y(column, line, vertice_index, connection_index, path_distance) == 0){
-					// y kapalı ise v yi kontrol ediyoruz.
-					if(check_v(column, line, vertice_index, connection_index, path_distance) == 1){ // v kapalı olmamalı.
+					// y kapalÄ± ise v yi kontrol ediyoruz.
+					if(check_v(column, line, vertice_index, connection_index, path_distance) == 1){ // v kapalÄ± olmamalÄ±.
 						return 1;
 					}
 				}
@@ -973,7 +973,7 @@ int check_c(int column, int line, int vertice_index, int connection_index, int p
 		}
 	}
 	else{
-		// c yönü kapalı.
+		// c yÃ¶nÃ¼ kapalÄ±.
 		return 0;
 	}
 }
@@ -982,15 +982,15 @@ void go_back_to_first_section(){
 	while(1){
 		descripe_robot();
 		
-		if(robot.column == 0 && robot.line == 0){ // eğer başlangıca ulaştıysak döngüyü bitiriyoruz.
+		if(robot.column == 0 && robot.line == 0){ // eÄŸer baÅŸlangÄ±ca ulaÅŸtÄ±ysak dÃ¶ngÃ¼yÃ¼ bitiriyoruz.
 			break;
 		}
 		
 		choose_and_turn();
 		hamle++;
-		write2(); // Güncel labirent bilgilerini dosyaya yazıyoruz. 
+		write2(); // GÃ¼ncel labirent bilgilerini dosyaya yazÄ±yoruz. 
 		go_straight();
-		write(); // Hamleleri ekrana ve dosyaya yazıyoruz.
+		write(); // Hamleleri ekrana ve dosyaya yazÄ±yoruz.
 	}
 	
 }
@@ -998,15 +998,15 @@ void go_to_target_section(){
 	while(1){
 		descripe_robot();
 		
-		if(square[robot.column][robot.line].finish == 1){ // eğer başlangıca ulaştıysak döngüyü bitiriyoruz.
+		if(square[robot.column][robot.line].finish == 1){ // eÄŸer baÅŸlangÄ±ca ulaÅŸtÄ±ysak dÃ¶ngÃ¼yÃ¼ bitiriyoruz.
 			break;
 		}
 		
 		choose_and_turn();
 		hamle++;
-		write2(); // Güncel labirent bilgilerini dosyaya yazıyoruz. 
+		write2(); // GÃ¼ncel labirent bilgilerini dosyaya yazÄ±yoruz. 
 		go_straight();
-		write(); // Hamleleri ekrana ve dosyaya yazıyoruz.
+		write(); // Hamleleri ekrana ve dosyaya yazÄ±yoruz.
 	}
 	
 }
@@ -1048,7 +1048,7 @@ void write(){
 	
 }
 void write2(){
-	// robot çıkmaza giden yolları kapatıyor. Bunu simülasyonda da görmek için bunları yapıyoruz.
+	// robot Ã§Ä±kmaza giden yollarÄ± kapatÄ±yor. Bunu simÃ¼lasyonda da gÃ¶rmek iÃ§in bunlarÄ± yapÄ±yoruz.
 	if(square[robot.column][robot.line].y_direction == 0){
 		maze2[robot.column*2][robot.line*2+1] = 'o';
 	}
@@ -1061,9 +1061,9 @@ void write2(){
 	if(square[robot.column][robot.line].c_direction == 0){
 		maze2[robot.column*2+1][robot.line*2] = 'o';
 	}
-	// robot ziyaret edilen kareleri işaretliyor. Bunu simülasyonda da görmek için bunları yapıyoruz.
+	// robot ziyaret edilen kareleri iÅŸaretliyor. Bunu simÃ¼lasyonda da gÃ¶rmek iÃ§in bunlarÄ± yapÄ±yoruz.
 	if(square[robot.column][robot.line].visit > 0){
-		maze2[robot.column*2+1][robot.line*2+1] = '.'; // ziyaret edilen kareleri . olarak yazıyoruz dosyaya
+		maze2[robot.column*2+1][robot.line*2+1] = '.'; // ziyaret edilen kareleri . olarak yazÄ±yoruz dosyaya
 	}
 	FILE *filep2;
 	filep2 = fopen("maze.txt","a");
