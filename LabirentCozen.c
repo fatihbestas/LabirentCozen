@@ -1,15 +1,6 @@
 #include<stdio.h>
 #include <stdbool.h>
 
-/*
-	Algoritma içerisinde bazı yorumlar çok anlaşılır olmayabilir.
-	Örneğin ileride köşe diye bir terimden bahsedilmekte.
-	Burada bahsedilen geometrik şekillerden bildiğimiz köşe ile aynı değil.
-	Buradaki köşenin tanımı bir karenin 2'den fazla yol bağlantısına sahip olmasıdır.
-	Köşe denilmesinin nedeni algoritma içerisindeki en kısa yolu hesaplama bölümü ile alakalı.
-	Bu gibi anlamı biraz kapalı olan kısımlar hakkında açıklama dosyası yazılması planlanmakta.
-*/
-
 /* 12x12 olmak üzere 144 kareden oluşan bir labirent için yazıyorum kodu.
    Algoritma işleyişi:
    Robot her karede sağ,sol ve öndeki sensörlerden gelen veri ile yol açık mı yoksa duvar mı var bunu algılar.
