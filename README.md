@@ -1,5 +1,6 @@
 # LabirentCozen
 
+## Proje Açıklaması
 Bu projede C dilinde labirent çözen bir algoritma yazılması amaçlandı.
 Algoritma fiziksel bir robot üzerinde uygulanmak üzere tasarlandı.
 Algoritmayı test etmek amacıyla C kodunun başında 2 boyutlu maze isimli bir dizi tanımlandı.
@@ -10,4 +11,7 @@ Ayrıca C dili ile yazılan algoritmanın testlerine görsellik kazandırmak iç
 
 Fiziksel robotun önünde, sağında ve solunda olmak üzere 3 adet mesafe sensörüne sahip olacağı ve labirent içerisinde bulunduğu konumun çevresindeki duvarları bu sensörler yardımıyla algılayacağı düşünüldü. Algoritma fiziksel robota uyarlanacağı zaman dosya işlemleri ile maze isimli dizinin kaldırılması ve robotun bulundu karenin çevresindeki duvarları maze dizisinden değil mesafe sensörlerinden okuması için birkaç fonksiyonda değişiklik yapılması gerekmektedir.
 
+## Proje Videosu
 Simülatöre ait bir video kaydının linki: https://youtu.be/FJNTcwh57Jg
+
+## Projeyi kendiniz çalıştırabilmeniz için:
