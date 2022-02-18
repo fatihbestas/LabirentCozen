@@ -14,4 +14,5 @@ Fiziksel robotun önünde, sağında ve solunda olmak üzere 3 adet mesafe sens�
 ## Proje Videosu
 Simülatöre ait bir video kaydının linki: https://youtu.be/FJNTcwh57Jg
 
-## Projeyi kendiniz çalıştırabilmeniz için:
+## Projeyi Çalıştırabilmeniz için:
+Dosyaları indirdikten sonra önce LabirentCozen.c dosyasını derleyip çalıştırmalısınız. Dosya içerinde en başta tanımlanan labirenti algoritma çözecek ve çıktıları metin dosyalarına yazacak. Ardından simulasyon.py dosyasını çalıştırarak algoritmanın çıktılarını grafiksel ortamda görebilirsiniz. Python dosyasının çalışabilmesi için pygame kütüphanesinin yüklü olması gerekmektedir.
